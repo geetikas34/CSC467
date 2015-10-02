@@ -1,0 +1,76 @@
+COMPILER467(1)              General Commands Manual             COMPILER467(1)
+
+
+
+NNAAMMEE
+       compiler467 - a compiler for the CSC467F Project MiniGLSL Language
+
+SSYYNNOOPPSSIISS
+       ccoommppiilleerr446677 [--XX] [--DD[_a_s_x_y]] [--TT[_n_p_x]] [--OO _o_u_t_p_u_t_f_i_l_e]
+                   [--EE _e_r_r_o_r_f_i_l_e] [--RR _t_r_a_c_e_f_i_l_e] [--UU _d_u_m_p_f_i_l_e]
+                   [--II _r_u_n_i_n_p_u_t_f_i_l_e] [_s_o_u_r_c_e_f_i_l_e]
+
+DDEESSCCRRIIPPTTIIOONN
+       ccoommppiilleerr446677 is an incredibly well designed and implemented compiler for
+       the CSC467F Course Project MiniGLSL Language.
+
+       The compiler compiles and then attempts to execute one program  written
+       in  MiniGLSL.  The compiler reads the source program from _s_o_u_r_c_e_F_i_l_e if
+       it was specified in the command that invoked the  compiler.   Otherwise
+       it expects the source program on standard input.
+
+OOPPTTIIOONNSS
+       The options currently implemented by the compiler467 are:
+
+       --XX          Suppress  execution  of  the  compiled program.  Saves time
+                   when testing an incomplete code generator.
+
+       --DD          Specify dump options.   The  letters  _a_s_x_y  indicate  which
+                   information should be dumped to the compilers _d_u_m_p_F_i_l_e.
+                   _a - dump the abstract syntax tree
+                   _s - dump the source code (with line numbers)
+                   _x - dump the compiled code just before execution
+                   _y - dump symbol table information
+
+       --TT          Specify  trace  options.   The  letters  _n_p_x indicate which
+                   trace information should be written to the compilers _t_r_a_c_e_‐
+                   _F_i_l_e.
+                   _n - trace scanning
+                   _p - trace parsing
+                   _x - trace program execution
+
+       --EE   _e_r_r_o_r_F_i_l_e
+                   Specify  an alternative file to receive error messages gen‐
+                   erated by the compiler.   Default  for  error  messages  is
+                   stderr.
+
+       --OO   _o_u_t_p_u_t_F_i_l_e_N_a_m_e
+                   Specify  an  alternative  file to receive ordinary compiler
+                   output (includes compilation  and  execution).  Default  is
+                   stdout
+
+       --RR   _t_r_a_c_e_F_i_l_e_N_a_m_e
+                   Specify  an  alternative  file  to  receive  compiler trace
+                   information.  Default for trace information is stdout.
+
+       --UU   _d_u_m_p_F_i_l_e_N_a_m_e
+                   Specify an alternative file to receive compiler dump infor‐
+                   mation.  Default for dump information is stdout.
+
+       --II   _r_u_n_I_n_p_u_t_F_i_l_e_N_a_m_e
+                   Specify  an  alternative file to serve as a source of input
+                   during execution of the compiled program.  Default for exe‐
+                   cution time input is stdin.
+
+EENNVVIIRROONNMMEENNTT
+       The compiler does not use any Unix environment variables.
+
+AAUUTTHHOORRSS
+       The MMiinniiGGLLSSLL CCoommppiilleerr was implimented by eugene miretsky
+
+BBUUGGSS
+       There are none; only a few unexpected features.
+
+
+
+CSC467F MiniGLSL Compiler       September 2009                  COMPILER467(1)
