@@ -97,7 +97,12 @@ extern int yyline;        /* variable holding current line number   */
  *  Phase 3:
  *    1. Add code to rules for construction of AST.
  ***********************************************************************/
-program
+
+program:
+|
+;
+%%
+ /*
   :   tokens       
   ;
 tokens
@@ -111,8 +116,8 @@ token
   ;
 
 
-%%
-
+  %%
+ */
 /***********************************************************************ol
  * Extra C code.
  *

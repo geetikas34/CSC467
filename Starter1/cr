@@ -1,0 +1,5 @@
+#!/bin/bash
+
+make clean
+make compiler467
+compiler467 -Tn ../Demos/Demo1/shader.frag

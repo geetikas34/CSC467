@@ -10,6 +10,7 @@
 #include "common.h"
 #include "parser.tab.h"
 #include "string.h"
+#include "stdlib.h"
 
 
 #define YY_USER_INIT { yyin = inputFile; }
@@ -23,13 +24,11 @@ int yyline = 1;
 %}
 %option noyywrap
 
-WS          [ \t\n]
-alphabet    [a-zA-z]
-digit       [0-9]
-integer     [\+\-]?(((1-9)digit*)|0)
-float       (integer).(digit)*
-identifier  (_|alphabet)(alphabet|digit|_)*
-operation   (\+|\-|\*|\/|&&|\|\||\<|\>|\<\=|\>\=|\=|\=\=|\!|\!\=|\^)
+WS          [ \t]
+integer_r     [\+\-]?(([1-9][0-9]*)|0)
+float_r       ([\+\-]?(([1-9][0-9]*)|0)).[0-9]*
+identifier  (_|[a-zA-z])([a-zA-z]|[0-9]|_)*
+operator    (\+|\-|\*|\/|&&|\|\||\<|\>|\<\=|\>\=|\=|\=\=|\!|\!\=|\^)
 
 %%
 "/*"        {
@@ -52,114 +51,134 @@ operation   (\+|\-|\*|\/|&&|\|\||\<|\>|\<\=|\>\=|\=|\=\=|\!|\!\=|\^)
             }
 
 "false"|"true" {
-                  yylval->num_int = (strcmp("false",yytext) == 0)?0:1;
+                  yylval.num_int = (strcmp("false",yytext) == 0)?0:1;
+                  printf("In token BOOL ");
                   yTRACE(BOOL);
                   return BOOL;
                }
 
-integer        {
-                  yylval->num_int = atoi(yytext);
+{integer_r}        {
+                  printf("In token INT ");
+                  yylval.num_int = atoi(yytext);
                   yTRACE(INT);
                   return INT;
                }
 
-float          {
-                  yylval->num_float = atof(yytext);
+{float_r}          {
+                  printf("In token FLOAT ");
+                  yylval.num_float = atof(yytext);
                   yTRACE(FLOAT);
                   return FLOAT;
                }
 
 "bool"         {
+                  printf("In token BOOL_TYPE ");
                   yTRACE(BOOL_TYPE);
                   return BOOL_TYPE;
                }
 
 "int"          {
+                  printf("In token INT_TYPE ");
                   yTRACE(INT_TYPE);
                   return INT_TYPE;
                }
 
 "float"        {
+                  printf("In token FLOAT_TYPE ");
                   yTRACE(FLOAT_TYPE);
                   return FLOAT_TYPE;
                }
 
 "bvec"[234]    {
-                  yylval->num_int = *(yytext+4);
+                  printf("In token BVEC_TYPE ");
+                  yylval.num_int = *(yytext+4);
                   yTRACE(BVEC_TYPE);
                   return BVEC_TYPE;
                }
 
 "ivec"[234]    {
-                  yylval->num_int = *(yytext+4);
+                  printf("In token IVEC_TYPE ");
+                  yylval.num_int = *(yytext+4);
                   yTRACE(IVEC_TYPE);
                   return IVEC_TYPE;
                }
 
 "vec"[234]     {
-                  yylval->num_float = *(yytext+3);
+                  printf("In token VEC_TYPE ");
+                  yylval.num_float = *(yytext+3);
                   yTRACE(VEC_TYPE);
                   return VEC_TYPE;
                }
 
 "const"        {
+                  printf("In token CONST ");
                   yTRACE(CONST);
                   return CONST;
                }
 
 ,             {
+                  printf("In token COMMA ");
                   yTRACE(COMMA);
                   return COMMA;
               }
 
 ;             {
+                  printf("In token SEMICOLON ");
                   yTRACE(SEMICOLON);
                   return SEMICOLON;
               }
 
 [\{\}]        {
-                  yylval->num_int = *yytext;
+                  printf("In token CURLY_BRACKETS ");
+                  yylval.num_int = *yytext;
                   yTRACE(CURLY_BRACKETS);
                   return CURLY_BRACKETS;
               }
 
 [\(\)]        {
-                  yylval->num_int = *yytext;
+                  printf("In token ROUND_BRACKET ");
+                  yylval.num_int = *yytext;
                   yTRACE(ROUND_BRACKETS);
                   return ROUND_BRACKETS;
               }
 
 [\[\]]        {
-                  yylval->num_int = *yytext;
+                 printf("In token SQUARE_BRACKETS ");
+                  yylval.num_int = *yytext;
                   yTRACE(SQUARE_BRACKETS);
                   return SQUARE_BRACKETS;
               }
-
-operator      {
-                 yylval->str = strdup(yytext);
+			     
+{operator}      {
+                  printf("In token OPERATOR ");
+                 strcpy(yylval.str, yytext);
                  yTRACE(OPERATOR);
                  return OPERATOR;
               }
 
-identifier    {
-                yylval->str = strdup(yytext);
+{identifier}    {
+                printf("In token IDENTIFIER ");
+                yylval.str = strdup(yytext);
                 yTRACE(IDENTIFIER);
                 return IDENTIFIER;
               }
 
 "rsq"|"lit"|"dp3" {
-                    yylval->str = strdup(yytext);
+                  printf("In token FUNCTION ");
+                    yylval.str = strdup(yytext);
                     yTRACE(FUNCTION);
                     return FUNCTION;
                   }
 
 "if"|"else"   {
-                 yylval->num_int = (strcmp(yytext,"if")==0)?0:1;
+                  printf("In token IFELSE ");
+                 yylval.num_int = (strcmp(yytext,"if")==0)?0:1;
                  yTRACE(IFELSE);
                  return IFELSE;
 	      }
 
 "while"       {
+                  printf("In token WHILE ");
 	         yTRACE(WHILE);
                  return WHILE;
 	      }
