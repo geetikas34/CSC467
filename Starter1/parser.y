@@ -55,10 +55,33 @@ extern int yyline;        /* variable holding current line number   */
 // Can access me from flex useing yyval
 
 %union {
-  int num;
+  int num_int;
+  char* str;
+  float num_float;
 }
 // TODO:Replace myToken with your tokens, you can use these tokens in flex
-%token           myToken1 myToken2  
+%token <num_int> BOOL
+%token <num_int> INT
+%token <num_float> FLOAT
+
+%token BOOL_TYPE
+%token INT_TYPE
+%token FLOAT_TYPE
+%token <num_int> BVEC_TYPE IVEC_TYPE VEC_TYPE
+
+%token CONST
+%token COMMA
+%token SEMICOLON
+%token <num_int> CURLY_BRACKETS ROUND_BRACKETS SQUARE_BRACKETS
+
+%token <str> OPERATOR
+%token <str> IDENTIFIER
+%token <str> FUNCTION
+%token <str> IFELSE
+%token WHILE
+
+// text?
+// void?
 
 
 %start    program
