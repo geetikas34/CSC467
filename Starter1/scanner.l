@@ -164,5 +164,4 @@ identifier    {
                  return WHILE;
 	      }
 
-
 %%

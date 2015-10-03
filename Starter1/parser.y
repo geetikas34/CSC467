@@ -77,7 +77,7 @@ extern int yyline;        /* variable holding current line number   */
 %token <str> OPERATOR
 %token <str> IDENTIFIER
 %token <str> FUNCTION
-%token <str> IFELSE
+%token <num_int> IFELSE // IS OKAY?
 %token WHILE
 
 // text?
