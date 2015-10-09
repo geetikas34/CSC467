@@ -72,17 +72,13 @@ extern int yyline;        /* variable holding current line number   */
 %token CONST
 %token COMMA
 %token SEMICOLON
-%token <num_int> CURLY_BRACKETS ROUND_BRACKETS SQUARE_BRACKETS
+%token OPEN_BRACE CLOSE_BRACE OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET
 
 %token <str> OPERATOR
 %token <str> IDENTIFIER
-%token <str> FUNCTION
-%token <num_int> IFELSE // IS OKAY?
+%token DPR LIT RSQ
+%token IF ELSE
 %token WHILE
-
-// text?
-// void?
-
 
 %start    program
 
