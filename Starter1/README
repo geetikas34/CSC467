@@ -1,0 +1,23 @@
+CSC467 Report
+Group # cd-001
+Nayantara Prem
+Geetika Saksena
+
+Run:
+compiler467 -Tn <name of input shader executable>
+
+Default trace file: trace.txt
+Default error file: error.txt
+Test cases:
+We ran our compiler with Demo1 and Demo2 available on the CSC467 website and obtained the required sequence of tokens. We also test the following cases:
+-Overflow of integer values that are not in the (-2^21, 2^21) range
+-Identifier length greater than 32
+-Float out of range 
+-Wrong format of identifiers
+-Other sequence of characters not supported by MiniGLSL.
+
+Issue Encountered:
+We were getting a segmentation fault which later we discovered was due to printing a non terminated string. 
+
+Team member contribution:
+Both members of the team worked on all parts of the lab together and contributed equally.
