@@ -208,7 +208,6 @@ operator    (\+|\-|\*|\/|&&|\|\||\<|\>|\<\=|\>\=|\=|\=\=|\!|\!\=|\^)
                  }
                  else {
                    yylval.str = strndup(yytext, yyleng);
-                   printf("In token IDENTIFIER val = %s", yylval.str);
                    yTRACE(IDENTIFIER);
                    return IDENTIFIER;
                  }
