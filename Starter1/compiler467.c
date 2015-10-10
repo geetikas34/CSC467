@@ -135,9 +135,9 @@ void getOpts (int numargs, char **argstr) {
   /* Initialize global variables to default values */
   inputFile         = DEFAULT_INPUT_FILE;
   outputFile        = DEFAULT_OUTPUT_FILE;
-  errorFile         = DEFAULT_ERROR_FILE;
+  errorFile         = fileOpen ("error.txt", "w", DEFAULT_OUTPUT_FILE);;
   dumpFile          = DEFAULT_DUMP_FILE;
-  traceFile         = DEFAULT_TRACE_FILE;
+  traceFile         = fileOpen ("trace.txt", "w", DEFAULT_TRACE_FILE);;
   runInputFile      = DEFAULT_RUN_INPUT_FILE;
 
   /* Initialize control flags */
