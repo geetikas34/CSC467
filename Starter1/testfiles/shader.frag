@@ -6,12 +6,10 @@ if (true){
    temp[1] = gl_Color[1] * gl_FragCoord[1];
    temp[2] = gl_Color[2];
    temp[3] = gl_Color[3] * gl_FragCoord[0] * gl_FragCoord[1];
-   whatever = 99999999999;
 }
 else{
    temp = gl_Color;
 }
   gl_FragColor = temp;
-
 }
 

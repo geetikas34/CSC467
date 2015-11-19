@@ -80,12 +80,8 @@ operator    (\+|\-|\*|\/|&&|\|\||\<|\>|\<\=|\>\=|\=|\=\=|\!|\!\=|\^)
 
 {float_r}      {
                   float f = atof(yytext);
-                  if(f == HUGE_VAL) {
-                     yERROR("Float out of range");
-                  } else {
-                     yTRACE(FLOAT);
-                     return FLOAT;
-                  }
+                  yTRACE(FLOAT);
+                  return FLOAT;
                }
 
 "bool"         {
