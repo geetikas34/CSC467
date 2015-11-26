@@ -186,7 +186,6 @@ void getOpts (int numargs, char **argstr) {
           }
           break;
         case 'O': /* Alternative output file */
-          printf("Blaaaaa\n");
           if (optarg[2] == 0) {
             i += 1;
             outputFile = fileOpen (argstr[i], "w", DEFAULT_OUTPUT_FILE);

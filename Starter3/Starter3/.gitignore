@@ -1,0 +1,8 @@
+*.o
+*.output
+*.out
+*.txt
+parser.c
+compiler467.c
+common.h
+globalvars.c
