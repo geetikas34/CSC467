@@ -24,7 +24,7 @@
 
 /* Phases 3,4: Uncomment following includes as needed */
 #include "ast.h"
-//#include "codegen.h"
+#include "codegen.h"
 
 /***********************************************************************
  * Default values for various files. Note assumption that default files
