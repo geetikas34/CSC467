@@ -21,6 +21,7 @@
  * code generator       codegen.c    codegen.h
  **********************************************************************/
 #include "common.h"
+#include "codegen.h"
 
 /* Phases 3,4: Uncomment following includes as needed */
 #include "ast.h"
@@ -95,7 +96,7 @@ int main (int argc, char *argv[]) {
   if (errorOccurred)
     fprintf(outputFile,"Failed to compile\n");
   else 
-   // genCode(ast);
+	  init_codegen(ast);
     ;
 /***********************************************************************
  * Post Compilation Cleanup
