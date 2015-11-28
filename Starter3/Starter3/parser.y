@@ -171,7 +171,8 @@ declarations
 statements
   : statements statement
       { yTRACE("statements -> statements statement\n");
-      	$$ = $2; }
+      	$$ = ast_allocate(STATEMENTS_NODE, $1, $2);
+      }
   | 
       { yTRACE("statements -> \n");
       	$$ = NULL; }
