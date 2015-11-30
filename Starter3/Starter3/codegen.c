@@ -1,5 +1,6 @@
 #include "codegen.h"
 
+bool available_temp_regs[NUM_TEMP_REGS] = {true};
 FILE* assemblyFile;
 
 char* GLSLcustomVar[13] = {

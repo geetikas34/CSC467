@@ -126,7 +126,7 @@ type_t check_operator_operand_match(int op, type_t type1, type_t type2) {
 				return ANY;
 			}
 		} else {
-			if (get_boolean_type(type1) > 0 || type1 == ANY) {
+			if ((!get_boolean_type(type1) > 0 || type1 == ANY) && op == (int)'-') {
 				return type1;
 			} else {
 				// operator and operand don't match
@@ -437,6 +437,10 @@ type_t check_decl_semantics(node* ast) {
 		return ANY;
 	}
 
+	// check if LHS is a global variable
+	// if it is, check if it is write-only
+	// otherwise error
+
 	// check if const var initialised with literal or global var
 	if (ast->declaration.constant) {
 		if (ast->declaration.expr->kind == INT_NODE)
@@ -449,14 +453,15 @@ type_t check_decl_semantics(node* ast) {
 			return ast->declaration.expr->type;
 		else if (ast->declaration.expr->kind == VAR_NODE) {
 			type_t global_type = get_global_var_type(ast->declaration.expr->variable.id);
-			if (global_type != INVALID) {
+			type_class global_class = get_global_var_class(ast->declaration.expr->variable.id);
+			if (global_type != INVALID && global_class == UNIFORM) {
 				return global_type;
 			} else {
-				PRINT_ERROR("RHS of const declaration is not a global var or literal\n");
+				PRINT_ERROR("RHS of const declaration is not a uniform var or literal\n");
 				return ANY;
 			}
 		} else {
-			PRINT_ERROR("RHS of const declaration is not a global var or literal\n");
+			PRINT_ERROR("RHS of const declaration is not a uniform var or literal\n");
 			return ANY;
 		}
 	}
@@ -464,6 +469,11 @@ type_t check_decl_semantics(node* ast) {
 }
 
 type_t check_assn_semantics(node* ast) {
+
+	// check if LHS is a global variable
+	// if it is, check if it is write-only
+	// otherwise error
+
 	char* id = ast->assignment.var->variable.id;
 	symbol_table * t;
 	symbol_table_entry* entry;
@@ -491,5 +501,18 @@ type_t get_global_var_type(char* identifier) {
 		return BOOL;
 	else
 		return INVALID;
+}
+
+type_class get_global_var_class(char* identifier) {
+	if (!strcmp(identifier, "gl_FragColor") || !strcmp(identifier, "gl_FragDepth") || !strcmp(identifier, "gl_FragCoord"))
+		return RESULT;
+	else if (!strcmp(identifier, "gl_TexCoord") || !strcmp(identifier, "gl_Color")
+			|| !strcmp(identifier, "gl_Secondary") || !strcmp(identifier, "gl_FogFragCoord"))
+		return ATTRIBUTE;
+	else if (!strcmp(identifier, "gl_Light_Half") || !strcmp(identifier, "gl_Light_Ambient") || !strcmp(identifier, "gl_Material_Shininess") || !strcmp(identifier, "env1")
+			|| !strcmp(identifier, "env2") || !strcmp(identifier, "env3"))
+		return UNIFORM;
+	else
+		return DEFAULT;
 }
 

@@ -1,3 +1,4 @@
+
 #ifndef _SYMBOL_H
 #define _SYMBOL_H
 
@@ -8,11 +9,19 @@ struct symbol_table {
 	symbol_table* parent;
 };
 
+typedef enum {
+	ATTRIBUTE /* Read-only, non-constant. */,
+	UNIFORM  /* Read-only, constant. These can be assigned to const qualified variables. */,
+	RESULT /* Write-only, cannot be assigned anywhere in the scope of an if or else statement. */,
+	DEFAULT /* Not a predefined variable */
+} type_class;
+
 /* one entry of symbol table */
 struct symbol_table_entry {
 	char* identifier;
 	type_t type;
 	int is_constant;
+	type_class t_class;
 	symbol_table_entry* next;
 };
 

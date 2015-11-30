@@ -186,6 +186,7 @@ declaration
         entry->identifier = strdup($2);
         entry->type = $1;
         entry->is_constant = 0;
+        entry->t_class = DEFAULT;
         add_symbol_table_entry(entry, stack->head);
       }
   | type ID '=' expression ';'
@@ -195,6 +196,7 @@ declaration
         entry->identifier = strdup($2);
         entry->type = $1;
         entry->is_constant = 0;
+        entry->t_class = DEFAULT;
         add_symbol_table_entry(entry, stack->head);
       }
   | CONST type ID '=' expression ';'
@@ -204,6 +206,7 @@ declaration
         entry->identifier = strdup($3);
         entry->type = $2;
         entry->is_constant = 1;
+        entry->t_class = DEFAULT;
         add_symbol_table_entry(entry, stack->head);
       }
   ;

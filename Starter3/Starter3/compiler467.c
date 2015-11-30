@@ -23,10 +23,6 @@
 #include "common.h"
 #include "codegen.h"
 
-/* Phases 3,4: Uncomment following includes as needed */
-#include "ast.h"
-#include "codegen.h"
-
 /***********************************************************************
  * Default values for various files. Note assumption that default files
  * are not closed at the end of compilation.
@@ -97,7 +93,7 @@ int main (int argc, char *argv[]) {
     fprintf(outputFile,"Failed to compile\n");
   else 
 	  init_codegen(ast);
-    ;
+
 /***********************************************************************
  * Post Compilation Cleanup
  **********************************************************************/
