@@ -40,7 +40,7 @@ YFLAGS  =-dtvy
 LEXER_OBJ =scanner.o
 PARSER_OBJ=parser.o
 AST_OBJ   =ast.o stack.o symbol_table.o semantic.o symbol.o
-#CODE_OBJ  =codegen.o  
+CODE_OBJ  =codegen.o  
 OBJs      =compiler467.o globalvars.o $(LEXER_OBJ) \
            $(PARSER_OBJ) $(AST_OBJ)   
 
