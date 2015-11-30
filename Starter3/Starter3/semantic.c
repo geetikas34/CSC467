@@ -5,11 +5,6 @@
 
 #define PRINT_ERROR(x) print_error(strdup(x))
 
-/*int semantic_check(node *ast) {
-
- return 0; // failed checks
- }*/
-
 void print_error(char* error_msg) {
 	fprintf(errorFile, error_msg);
 	errorOccurred = 1;
@@ -28,15 +23,13 @@ int semantic_check(node *ast) {
 	}
 	case UNARY_EXPRESSION_NODE: {
 		semantic_check(ast->unary_expr.right);
-		ast->type = check_operator_operand_match(ast->unary_expr.op,
-				ast->unary_expr.right->type, ANY);
+		ast->type = check_operator_operand_match(ast->unary_expr.op, ast->unary_expr.right->type, ANY);
 		break;
 	}
 	case BINARY_EXPRESSION_NODE: {
 		semantic_check(ast->binary_expr.left);
 		semantic_check(ast->binary_expr.right);
-		ast->type = check_operator_operand_match(ast->binary_expr.op,
-				ast->binary_expr.left->type, ast->binary_expr.right->type);
+		ast->type = check_operator_operand_match(ast->binary_expr.op, ast->binary_expr.left->type, ast->binary_expr.right->type);
 		break;
 	}
 	case VAR_NODE: {
@@ -52,10 +45,6 @@ int semantic_check(node *ast) {
 		semantic_check(ast->constructor.args);
 		break;
 	}
-	case STATEMENT_NODE: {
-		semantic_check(ast->statements.stat);
-		break;
-	}
 	case IF_STATEMENT_NODE: {
 		semantic_check(ast->if_else.exprs);
 		if (get_boolean_type(ast->if_else.exprs->type) != 1) {
@@ -68,7 +57,8 @@ int semantic_check(node *ast) {
 	case ASSIGNMENT_NODE: {
 		semantic_check(ast->assignment.var);
 		semantic_check(ast->assignment.expr);
-		if (ast->assignment.var->type == ast->assignment.expr->type) {
+		check_assn_semantics(ast);
+		if (ast->assignment.var->type == ast->assignment.expr->type || ast->assignment.var->type == ANY || ast->assignment.expr->type == ANY) {
 			ast->type = ast->assignment.var->type;
 		} else {
 			PRINT_ERROR("Assignment type mismatch\n");
@@ -101,6 +91,12 @@ int semantic_check(node *ast) {
 			PRINT_ERROR("LHS and RHS of declaration type mismatch\n");
 		}
 
+		break;
+	}
+	case STATEMENTS_NODE: {
+		semantic_check(ast->statements.stats);
+		semantic_check(ast->statements.stat);
+		ast->type = ast->statements.stat->type;
 		break;
 	}
 	case INT_NODE:
@@ -149,10 +145,8 @@ type_t check_operator_operand_match(int op, type_t type1, type_t type2) {
 		case '-':
 		case EQ:
 		case NEQ:
-			if (((get_int_type(type1) > 0)
-					&& (get_int_type(type1) == get_int_type(type2)))
-					|| ((get_float_type(type1) > 0)
-							&& (get_float_type(type1) == get_float_type(type2)))) {
+			if (((get_int_type(type1) > 0) && (get_int_type(type1) == get_int_type(type2)))
+					|| ((get_float_type(type1) > 0) && (get_float_type(type1) == get_float_type(type2)))) {
 				// same base type and order
 				return type1;
 			} else {
@@ -164,12 +158,10 @@ type_t check_operator_operand_match(int op, type_t type1, type_t type2) {
 				// same base type
 				if (get_int_type(type1) > 1) {
 					// if type1 is vector, type 2 should be vector of same order or scalar
-					if ((get_int_type(type1) == get_int_type(type2))
-							|| (get_int_type(type2) == 1)) {
+					if ((get_int_type(type1) == get_int_type(type2)) || (get_int_type(type2) == 1)) {
 						return type1;
 					} else {
-						PRINT_ERROR(
-								"* Binary Operator Operand type mismatch! (vv vs sv ss)\n");
+						PRINT_ERROR("* Binary Operator Operand type mismatch! (vv vs sv ss)\n");
 						return ANY;
 					}
 				} else {
@@ -179,20 +171,17 @@ type_t check_operator_operand_match(int op, type_t type1, type_t type2) {
 				// same base type
 				if (get_float_type(type1) > 1) {
 					// if type1 is vector, type 2 should be vector of same order or scalar
-					if ((get_float_type(type1) == get_float_type(type2))
-							|| (get_float_type(type2) == 1)) {
+					if ((get_float_type(type1) == get_float_type(type2)) || (get_float_type(type2) == 1)) {
 						return type1;
 					} else {
-						PRINT_ERROR(
-								"* Binary Operator Operand type mismatch (vv vs sv ss)!\n");
+						PRINT_ERROR("* Binary Operator Operand type mismatch (vv vs sv ss)!\n");
 						return ANY;
 					}
 				} else {
 					return type2;
 				}
 			} else {
-				PRINT_ERROR(
-						"* Binary Operator Operand type mismatch (Base type mismatch) !\n");
+				PRINT_ERROR("* Binary Operator Operand type mismatch (Base type mismatch) !\n");
 				return ANY;
 			}
 			break;
@@ -202,8 +191,7 @@ type_t check_operator_operand_match(int op, type_t type1, type_t type2) {
 		case '>':
 		case LEQ:
 		case GEQ:
-			if ((get_int_type(type1) == 1 && get_int_type(type1) == 1)
-					|| (get_float_type(type1) == 1 && get_float_type(type1) == 1)) {
+			if ((get_int_type(type1) == 1 && get_int_type(type1) == 1) || (get_float_type(type1) == 1 && get_float_type(type1) == 1)) {
 				return type1;
 			} else {
 				PRINT_ERROR("/ or ^ Binary Operator Operand type mismatch\n");
@@ -212,8 +200,7 @@ type_t check_operator_operand_match(int op, type_t type1, type_t type2) {
 			break;
 		case AND:
 		case OR:
-			if ((get_boolean_type(type1) > 0)
-					&& (get_boolean_type(type1) == get_boolean_type(type2)))
+			if ((get_boolean_type(type1) > 0) && (get_boolean_type(type1) == get_boolean_type(type2)))
 				return type1;
 			else {
 				PRINT_ERROR("&& or || Binary Operator Operand type mismatch\n");
@@ -318,11 +305,9 @@ type_t check_function_semantics(node* ast) {
 	switch (function_name) {
 	case 0: //DP3
 		if (num_args == 2) {
-			if ((arg1_t == VEC3 && arg2_t == VEC3)
-					|| (arg1_t == VEC4 && arg2_t == VEC4)) {
+			if ((arg1_t == VEC3 && arg2_t == VEC3) || (arg1_t == VEC4 && arg2_t == VEC4)) {
 				return FLOAT;
-			} else if ((arg1_t == IVEC3 && arg2_t == IVEC3)
-					|| (arg1_t == IVEC4 && arg2_t == IVEC4)) {
+			} else if ((arg1_t == IVEC3 && arg2_t == IVEC3) || (arg1_t == IVEC4 && arg2_t == IVEC4)) {
 				return INT;
 			} else {
 				PRINT_ERROR("DP3 argument type mismatch\n");
@@ -417,7 +402,7 @@ type_t check_var_semantics(node* ast) {
 		} else {
 			int blen = get_boolean_type(entry->type);
 			int ilen = get_int_type(entry->type);
-			int flen = get_int_type(entry->type);
+			int flen = get_float_type(entry->type);
 			if (blen != 0) {
 				if ((array_index < blen) && (array_index >= 0)) {
 					return BOOL;
@@ -463,18 +448,33 @@ type_t check_decl_semantics(node* ast) {
 		else if (ast->declaration.expr->kind == CONSTRUCTOR_NODE)
 			return ast->declaration.expr->type;
 		else if (ast->declaration.expr->kind == VAR_NODE) {
-			type_t global_type = get_global_var_type(
-					ast->declaration.expr->variable.id);
+			type_t global_type = get_global_var_type(ast->declaration.expr->variable.id);
 			if (global_type != INVALID) {
 				return global_type;
 			} else {
-				PRINT_ERROR(
-						"RHS of const declaration is not a global var or literal\n");
+				PRINT_ERROR("RHS of const declaration is not a global var or literal\n");
 				return ANY;
 			}
 		} else {
-			PRINT_ERROR(
-					"RHS of const declaration is not a global var or literal\n");
+			PRINT_ERROR("RHS of const declaration is not a global var or literal\n");
+			return ANY;
+		}
+	}
+	return ast->type;
+}
+
+type_t check_assn_semantics(node* ast) {
+	char* id = ast->assignment.var->variable.id;
+	symbol_table * t;
+	symbol_table_entry* entry;
+	for (t = ast->current_table; t != NULL; t = t->parent) {
+			entry = search_symbol_table_entry(t, id);
+			if (entry)
+				break;
+	}
+	if(entry) {
+		if (entry->is_constant) {
+			PRINT_ERROR("const variable cannot be defined\n");
 			return ANY;
 		}
 	}
@@ -482,20 +482,14 @@ type_t check_decl_semantics(node* ast) {
 }
 
 type_t get_global_var_type(char* identifier) {
-	if ((!strcmp(identifier, "gl_FragColor")
-			|| !strcmp(identifier, "gl_FragCoord")
-			|| !strcmp(identifier, "gl_TexCoord")
-			|| !strcmp(identifier, "gl_Color")
-			|| !strcmp(identifier, "gl_Secondary")
-			|| !strcmp(identifier, "gl_FogFragCoord")
-			|| !strcmp(identifier, "gl_Light_Half")
-			|| !strcmp(identifier, "gl_Light_Ambient")
-			|| !strcmp(identifier, "gl_Material_Shininess")
-			|| !strcmp(identifier, "env1") || !strcmp(identifier, "env2")
-			|| !strcmp(identifier, "env3")))
+	if ((!strcmp(identifier, "gl_FragColor") || !strcmp(identifier, "gl_FragCoord") || !strcmp(identifier, "gl_TexCoord") || !strcmp(identifier, "gl_Color")
+			|| !strcmp(identifier, "gl_Secondary") || !strcmp(identifier, "gl_FogFragCoord") || !strcmp(identifier, "gl_Light_Half")
+			|| !strcmp(identifier, "gl_Light_Ambient") || !strcmp(identifier, "gl_Material_Shininess") || !strcmp(identifier, "env1")
+			|| !strcmp(identifier, "env2") || !strcmp(identifier, "env3")))
 		return VEC4;
 	else if (!strcmp(identifier, "gl_FragDepth"))
 		return BOOL;
 	else
 		return INVALID;
 }
+

@@ -19,6 +19,7 @@ type_t check_function_semantics(node*);
 type_t check_constructor_semantics(node*);
 type_t check_var_semantics(node*);
 type_t check_decl_semantics(node*);
+type_t check_assn_semantics(node* ast);
 type_t get_global_var_type(char* identifier);
 void print_error(char* msg);
 

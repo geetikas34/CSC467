@@ -6,6 +6,7 @@
  */
 
 #include "ast.h"
+#include "symbol.h"
 
 void symbol_table_stack_push(symbol_table* table) {
 	table->next = stack->head;

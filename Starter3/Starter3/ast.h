@@ -32,26 +32,25 @@ extern symbol_table_stack *stack;
 extern symbol_table* curr_table;
 typedef enum {
 	UNKNOWN = 0,
-
-	SCOPE_NODE = (1 << 0),
-
-	EXPRESSION_NODE = (1 << 2),
-	UNARY_EXPRESSION_NODE = (1 << 2) | (1 << 3),
-	BINARY_EXPRESSION_NODE = (1 << 2) | (1 << 4),
-	INT_NODE = (1 << 2) | (1 << 5),
-	FLOAT_NODE = (1 << 2) | (1 << 6),
-	BOOL_NODE = (1 << 2) | (1 << 16),
-	IDENT_NODE = (1 << 2) | (1 << 7),
-	VAR_NODE = (1 << 2) | (1 << 8),
-	FUNCTION_NODE = (1 << 2) | (1 << 9),
-	CONSTRUCTOR_NODE = (1 << 2) | (1 << 10),
-	STATEMENT_NODE = (1 << 1),
-	IF_STATEMENT_NODE = (1 << 1) | (1 << 11),
-	ASSIGNMENT_NODE = (1 << 1) | (1 << 13),
-	NESTED_SCOPE_NODE = (1 << 1) | (1 << 14),
-	ARGUMENT_NODE = (1 << 1) | (1 << 17),
-	DECLARATION_NODE = (1 << 15),
-	DECLARATIONS_NODE = (1 << 1) | (1 << 18)
+	SCOPE_NODE = 1,
+	EXPRESSION_NODE = 2,
+	UNARY_EXPRESSION_NODE = 3,
+	BINARY_EXPRESSION_NODE = 4,
+	INT_NODE = 5,
+	FLOAT_NODE = 6,
+	BOOL_NODE = 7,
+	IDENT_NODE = 8,
+	VAR_NODE = 9,
+	FUNCTION_NODE = 10,
+	CONSTRUCTOR_NODE = 11,
+	STATEMENT_NODE = 12,
+	IF_STATEMENT_NODE = 13,
+	ASSIGNMENT_NODE = 14,
+	NESTED_SCOPE_NODE = 15,
+	ARGUMENT_NODE = 16,
+	DECLARATION_NODE = 17,
+	DECLARATIONS_NODE = 18,
+	STATEMENTS_NODE = 19
 } node_kind;
 
 typedef enum {
@@ -124,6 +123,7 @@ struct node_ {
 
 		struct {
 			node *stat;
+			node *stats;
 		} statements;
 
 		struct {
@@ -164,36 +164,5 @@ char* get_op(int op);
 char* get_type(type_t type);
 char* get_bool(int b);
 char* get_function_name(int func);
-
-/* one entry of symbol table */
-struct symbol_table_entry {
-	char* identifier;
-	type_t type;
-	int is_constant;
-	symbol_table_entry* next;
-};
-
-/* symbol table: linked list of symbol table entries*/
-struct symbol_table {
-	symbol_table_entry* head;
-	symbol_table* next;
-	symbol_table* parent;
-};
-
-void add_symbol_table_entry(symbol_table_entry* entry, symbol_table* table);
-symbol_table_entry* search_symbol_table_entry(symbol_table* table, char* identifier);
-bool found_duplicate_symbols(symbol_table* table, char* identifier);
-void add_global_variables_to_table(symbol_table* table);
-//void delete_table (symbol_table* table);
-void print_table(symbol_table* table);
-
-/* symbol table stack: linked list implementation of symbol table stack */
-struct symbol_table_stack {
-	symbol_table* head;
-};
-
-void symbol_table_stack_push(symbol_table* table);
-symbol_table* symbol_table_stack_pop();
-void print_stack();
 
 #endif /* AST_H_ */
