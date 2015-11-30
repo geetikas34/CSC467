@@ -1,7 +1,7 @@
 #include "codegen.h"
 
+FILE* frag;
 bool available_temp_regs[NUM_TEMP_REGS] = {true};
-FILE* assemblyFile;
 
 char* GLSLcustomVar[13] = {
 	"result.color",
@@ -43,47 +43,58 @@ int get_tempVar(){
 			return i;
 		}
 	}
-	fprintf(assemblyFile, "ERROR: Out of regs!\n");
+	fprintf(frag, "ERROR: Out of regs!\n");
 	return -1;
 }
 
 
 void free_temp(char * exp_right){
 	if(strstr(exp_right, "tempVar")){
-		int  i = atoi(exp_right[7]);
+
+		char* a = exp_right[7];
+		int i = a - '0';
 		available_temp_regs[i] = true;
 	}
 }
 void decl_genCode(node* ast){
 	// CONST
+	/*if(ast->declaration.expr->kind == CONSTRUCTOR_NODE)
+		genCode(ast->declaration.expr);*/
 	char* tempvar = (char *)malloc(sizeof(char) * 1000);
+	int dest = get_tempVar();
 	if(ast->declaration.constant){
 		//only static assignment allowed: to a var or a literal or constructor(?)
 		//for all?
-		fprintf(assemblyFile,"PARAM %s = ;", ast->declaration.id);
+		fprintf(frag,"PARAM tempVar%d = ", dest);
 		if(ast->declaration.expr->kind == VAR_NODE || ast->declaration.expr->kind == CONSTRUCTOR_NODE){ //constructor???
 			genCode(ast->declaration.expr, tempvar);
-			fprintf(assemblyFile,"%s ;\n", tempvar);
+			fprintf(frag,"%s ;\n", tempvar);
 		} else {
 			switch(ast->declaration.expr->kind){
 				case FLOAT_NODE:
-					fprintf(assemblyFile, "%f\n", ast->declaration.expr->float_literal.val);
+					fprintf(frag, "%f\n", ast->declaration.expr->float_literal.val);
 					break;
 				case BOOL_NODE:
-					fprintf(assemblyFile, "%d\n", ast->declaration.expr->bool_literal.val); //<-correct??
+					fprintf(frag, "%d\n", ast->declaration.expr->bool_literal.val); //<-correct??
 					break;
 				case INT_NODE:
-					fprintf(assemblyFile, "%d\n", ast->declaration.expr->int_literal.val);
+					fprintf(frag, "%d\n", ast->declaration.expr->int_literal.val);
 					break;
 				default: printf("decl_genCode: Shouldn't come here!\n");
 			}
 		}
 	}//NOT CONST
 	else {
-		fprintf(assemblyFile, "TEMP %s;\n", ast->declaration.id);
-		if(ast->declaration.expr != NULL){
-			genCode(ast->declaration.expr, tempvar);
-			fprintf(assemblyFile, "MOV %s, %s;\n", ast->declaration.id, tempvar);
+
+		fprintf(frag, "TEMP tempVar%d;\n", dest);
+		if(ast->declaration.expr != NULL ){
+			if(ast->declaration.expr->kind !=CONSTRUCTOR_NODE){
+				genCode(ast->declaration.expr, tempvar);
+				fprintf(frag, "MOV tempVar%d, %s;\n", dest, tempvar);
+			} else {
+				fprintf(frag, "MOV tempVar%d, ", dest, tempvar);
+				genCode(ast->declaration.expr);
+			}
 		}
 	}
 	free(tempvar);
@@ -122,35 +133,64 @@ char* get_var(node* ast, char* buf){
 	}
 	return buf;
 }
+/*
+void genCode_assignment(node* ast){
+	//char* right = (char *)malloc(sizeof(char) * 1000);
+//	char* left = (char *)malloc(sizeof(char) * 1000);
+
+	fprintf(frag,"# assignment\n");
+	//not looking at if_else for now
+	genCode(ast->assignment.var, right);
+	genCode(ast->assignment.expr, left);
+	fprintf(frag, "MOV %s, %s;\n", left, right);
+	free_temp(right);
+	//free(right);
+	//free(left);
+}*/
+
 void genCode(node* ast, char* tempVar){
     if(ast == NULL)
     	return;
     int dest_temp;
-    char* exp_right  =NULL;
-	switch(ast->kind){
+    char exp_right[1000];
+    char exp_left[1000];
+    switch(ast->kind){
 	case SCOPE_NODE:
-		fprintf(assemblyFile, "#SCOPE\n");
+		fprintf(frag, "#SCOPE\n");
 		genCode(ast->scope.decls);
 		genCode(ast->scope.stats);
 		break;
 	case DECLARATIONS_NODE:
-		fprintf(assemblyFile, "#DECLS\n");
+		fprintf(frag, "#DECLS\n");
 		genCode(ast->declarations.decls);
 		genCode(ast->declarations.decl);
 		break;
 	case DECLARATION_NODE:
-		fprintf(assemblyFile, "#DECL\n");
+		fprintf(frag, "#DECL\n");
 		decl_genCode(ast);
 		break;
+	case STATEMENTS_NODE:
+		genCode(ast->statements.stat);
+		genCode(ast->statements.stats);
+		break;
+	case ASSIGNMENT_NODE:
+		//genCode_assignment(ast);
+		fprintf(frag,"# assignment\n");
+		//not looking at if_else for now
+		genCode(ast->assignment.var, exp_left);
+		genCode(ast->assignment.expr, exp_right);
+		fprintf(frag, "MOV %s, %s;\n", exp_left, exp_right);
+		free_temp(exp_right);
+		break;
 	case VAR_NODE:
-		fprintf(assemblyFile, "#VAR_NODE\n");
+		fprintf(frag, "#VAR_NODE\n");
 		get_var(ast, tempVar);
 		break;
 	case BOOL_NODE:
 		if(ast->bool_literal.val)
-			sprintf(tempVar, "1");
+			sprintf(tempVar, TRUE);
 		else
-			sprintf(tempVar, "0");
+			sprintf(tempVar, FALSE);
 		break;
 	case INT_NODE:
 		sprintf(tempVar, "%d", ast->int_literal.val);
@@ -159,35 +199,54 @@ void genCode(node* ast, char* tempVar){
 		sprintf(tempVar, "%f", ast->float_literal.val);
 		break;
 	case UNARY_EXPRESSION_NODE:
+		fprintf(frag,"# unary\n");
 		dest_temp = get_tempVar();
-		fprintf(assemblyFile,"TEMP tempVar%d;\n", dest_temp);
+		fprintf(frag,"TEMP tempVar%d;\n", dest_temp);
 		genCode(ast->unary_expr.right,exp_right);
 		switch(ast->unary_expr.op){
 			case '-':
-				fprintf(assemblyFile, "SUB tempVar%d, 0.0, %s;\n", dest_temp, exp_right);
+				fprintf(frag, "SUB tempVar%d, 0.0, %s;\n", dest_temp, exp_right);
 				break;
 			case '!':
-				fprintf(assemblyFile, "NOT tempVar%d, %s;\n", dest_temp, exp_right);
+				fprintf(frag, "NOT tempVar%d, %s;\n", dest_temp, exp_right);
 				break;
-			default: fprintf(assemblyFile, "ERROR: Invalid unary op\n");
+			default: fprintf(frag, "ERROR: Invalid unary op\n");
 		}
 		sprintf(tempVar, "tempVar%d", dest_temp);
 		free_temp(exp_right);
 		break;
 	case BINARY_EXPRESSION_NODE:
+		fprintf(frag,"# binary\n");
 		break;
-	default: printf("genCode: Shouldn't come here!\n");
+	case ARGUMENT_NODE:
+	//	fprintf(frag,"# arg\n");
+		genCode(ast->arguments.args, "end");
+		genCode(ast->arguments.exprs, exp_right);
+		fprintf(frag, "%s",exp_right);
+		if(strcmp(tempVar, "start") != 0)
+			fprintf(frag," , ");
+		break;
+	case CONSTRUCTOR_NODE:
+		fprintf(frag, "{");
+		genCode(ast->constructor.args, "start");
+		fprintf(frag," };\n");
+		break;
+	case FUNCTION_NODE:
+		fprintf(frag,"# FUNCTION\n");
+		break;
+	default: printf("genCode: Not implemented node!\n", ast);
 	}
 	
 }
 
 
 void init_codegen(node* ast){
-	//assemblyFile = fopen("frag.txt", "w");
-	assemblyFile = stdout;
+	//frag = fopen("frag.txt", "w");
+	frag = stdout;
 	// init special regs
-	fprintf(assemblyFile, "PARAM zero = 0;\n");
-	fprintf(assemblyFile, "PARAM true = 1;\n");
-	fprintf(assemblyFile, "PARAM false = 0;\n");
+//	fprintf(frag, "PARAM true = 1.0;\n");
+//	fprintf(frag, "PARAM false = -1.0;\n");
+	fprintf(frag, "!!ARBfp1.0\n");
 	genCode(ast);
+	fprintf(frag, "END\n");
 }
