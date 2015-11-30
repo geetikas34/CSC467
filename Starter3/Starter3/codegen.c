@@ -1,7 +1,7 @@
 #include "codegen.h"
 
 FILE* frag;
-bool available_temp_regs[NUM_TEMP_REGS] = {true};
+bool available_temp_regs[NUM_TEMP_REGS];
 
 char* GLSLcustomVar[13] = {
 	"result.color",
@@ -188,9 +188,9 @@ void genCode(node* ast, char* tempVar){
 		break;
 	case BOOL_NODE:
 		if(ast->bool_literal.val)
-			sprintf(tempVar, TRUE);
+			sprintf(tempVar, "%f", 1.0);
 		else
-			sprintf(tempVar, FALSE);
+			sprintf(tempVar,"%f", -1.0);
 		break;
 	case INT_NODE:
 		sprintf(tempVar, "%d", ast->int_literal.val);
@@ -233,8 +233,13 @@ void genCode(node* ast, char* tempVar){
 		break;
 	case FUNCTION_NODE:
 		fprintf(frag,"# FUNCTION\n");
+		/*switch(ast->function.function_name){
+			case 0;
+			break;
+
+		}*/
 		break;
-	default: printf("genCode: Not implemented node!\n", ast);
+	default: printf("genCode: Not implemented node!\n");
 	}
 	
 }
@@ -246,6 +251,10 @@ void init_codegen(node* ast){
 	// init special regs
 //	fprintf(frag, "PARAM true = 1.0;\n");
 //	fprintf(frag, "PARAM false = -1.0;\n");
+	int i;
+	for(i=0;i<NUM_TEMP_REGS;i++){
+		available_temp_regs[i] = true;
+	}
 	fprintf(frag, "!!ARBfp1.0\n");
 	genCode(ast);
 	fprintf(frag, "END\n");
