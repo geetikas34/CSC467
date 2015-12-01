@@ -165,17 +165,17 @@ void genCode(node* ast, char* tempVar, char* cond){
     char exp_left[1000];
     switch(ast->kind){
 	case SCOPE_NODE:
-		fprintf(frag, "#SCOPE\n");
+		//fprintf(frag, "#SCOPE\n");
 		genCode(ast->scope.decls);
 		genCode(ast->scope.stats, tempVar, cond);
 		break;
 	case DECLARATIONS_NODE:
-		fprintf(frag, "#DECLS\n");
+		//fprintf(frag, "#DECLS\n");
 		genCode(ast->declarations.decls);
 		genCode(ast->declarations.decl);
 		break;
 	case DECLARATION_NODE:
-		fprintf(frag, "#DECL\n");
+		//fprintf(frag, "#DECL\n");
 		decl_genCode(ast);
 		break;
 	case STATEMENTS_NODE:
@@ -184,7 +184,7 @@ void genCode(node* ast, char* tempVar, char* cond){
 		break;
 	case ASSIGNMENT_NODE:
 		//genCode_assignment(ast);
-		fprintf(frag,"# assignment\n");
+		//fprintf(frag,"# assignment\n");
 		//not looking at if_else for now
 		genCode(ast->assignment.var, exp_left);
 		genCode(ast->assignment.expr, exp_right);
@@ -213,7 +213,7 @@ void genCode(node* ast, char* tempVar, char* cond){
 		sprintf(tempVar, "%f", ast->float_literal.val);
 		break;
 	case UNARY_EXPRESSION_NODE:
-		fprintf(frag,"# unary\n");
+		fprintf(frag,"# unnary op\n");
 		dest_temp = get_tempVar();
 		if(!previously_declared_temp[dest_temp]){
 			fprintf(frag,"TEMP tempVar%d;\n", dest_temp);
@@ -233,7 +233,7 @@ void genCode(node* ast, char* tempVar, char* cond){
 		free_temp(exp_right);
 		break;
 	case BINARY_EXPRESSION_NODE:
-		fprintf(frag,"# binary\n");
+		fprintf(frag,"# binary op\n");
 		dest_temp = get_tempVar();
 		genCode(ast->binary_expr.left, exp_left);
 		genCode(ast->binary_expr.right, exp_right);
@@ -375,21 +375,25 @@ void genCode(node* ast, char* tempVar, char* cond){
 		fprintf(frag, "MOV tempVar%d, %s;\n", dest_temp, exp_right);
 		sprintf(exp_right, "tempVar%d", dest_temp);
 		//exp_right is if_cond. if true, exec if stmts
-		dest_temp = get_tempVar();
-		if(!previously_declared_temp[dest_temp]){
-			fprintf(frag,"TEMP tempVar%d;\n", dest_temp);
-			previously_declared_temp[dest_temp] = true;
-		}
-		// dest_temp is !if_cond i.e if dest_temp = TRUE, exec else stmts
-		fprintf(frag, "CMP tempVar%d, %s,1.0, -1.0", dest_temp, exp_right);
-		//if stmts
-		fprintf(frag, "#if stmts\n");
-		genCode(ast->if_else.stats, "IFELSE", exp_right);
-		//else stmts (exp_left = else condition)
-		sprintf(exp_left, "tempVar%d", dest_temp);
-		fprintf(frag, "#else stmts\n");
-		genCode(ast->if_else.else_stats, "IFELSE", exp_left);
 
+		if(ast->if_else.else_stats != NULL){
+			dest_temp = get_tempVar();
+			if(!previously_declared_temp[dest_temp]){
+				fprintf(frag,"TEMP tempVar%d;\n", dest_temp);
+				previously_declared_temp[dest_temp] = true;
+			}
+			// dest_temp is !if_cond i.e if dest_temp = TRUE, exec else stmts
+			fprintf(frag, "CMP tempVar%d, %s,1.0, -1.0;\n", dest_temp, exp_right);
+		}
+		//if stmts
+		//fprintf(frag, "#if stmts\n");
+		genCode(ast->if_else.stats, "IFELSE", exp_right);
+		if(ast->if_else.else_stats != NULL){
+			//else stmts (exp_left = else condition)
+			sprintf(exp_left, "tempVar%d", dest_temp);
+			//fprintf(frag, "#else stmts\n");
+			genCode(ast->if_else.else_stats, "IFELSE", exp_left);
+		}
 		break;
 	default: printf("genCode: Not implemented node!\n");
 	}
@@ -398,11 +402,8 @@ void genCode(node* ast, char* tempVar, char* cond){
 
 
 void init_codegen(node* ast){
-	//frag = fopen("frag.txt", "w");
-	frag = stdout;
-	// init special regs
-//	fprintf(frag, "PARAM true = 1.0;\n");
-//	fprintf(frag, "PARAM false = -1.0;\n");
+	frag = fopen("frag.txt", "w");
+	//frag = stdout;
 	int i;
 	for(i=0;i<NUM_TEMP_REGS;i++){
 		available_temp_regs[i] = true;
