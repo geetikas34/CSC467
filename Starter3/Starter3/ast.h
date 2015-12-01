@@ -6,7 +6,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+enum {
+  DP3 = 0,
+  LIT = 1,
+  RSQ = 2
+};
 // Dummy node just so everything compiles, create your own node/nodes
 //
 // The code provided below is an example ONLY. You can use/modify it,
