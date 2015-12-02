@@ -10,8 +10,7 @@
 #define DEBUG_PRINT_TREE 0
 
 node *ast = NULL;
-symbol_table_stack *stack = (symbol_table_stack*) malloc(
-		sizeof(symbol_table_stack));
+symbol_table_stack *stack = (symbol_table_stack*) malloc(sizeof(symbol_table_stack));
 symbol_table* curr_table = NULL;
 node *ast_allocate(node_kind kind, ...) {
 	va_list args;
@@ -24,9 +23,6 @@ node *ast_allocate(node_kind kind, ...) {
 	ast->type = INVALID;
 	ast->current_table = curr_table;
 	switch (kind) {
-
-	// ...
-
 	case SCOPE_NODE:
 		ast->scope.decls = va_arg(args, node*);
 		ast->scope.stats = va_arg(args, node*);
@@ -73,9 +69,6 @@ node *ast_allocate(node_kind kind, ...) {
 		ast->assignment.var = va_arg(args, node*);
 		ast->assignment.expr = va_arg(args, node*);
 		break;
-	case NESTED_SCOPE_NODE:
-		//	ast->
-		break;
 	case DECLARATION_NODE:
 		ast->declaration.constant = va_arg(args, int);
 		ast->type = (type_t) va_arg(args, int);
@@ -94,19 +87,91 @@ node *ast_allocate(node_kind kind, ...) {
 		ast->arguments.args = va_arg(args, node*);
 		ast->arguments.exprs = va_arg(args, node*);
 		break;
-		// ...
 
 	default:
 		break;
 	}
-
+	ast->line_num = va_arg(args, int);
 	va_end(args);
 
 	return ast;
 }
 
 void ast_free(node *ast) {
+	ast_free_helper(ast);
+	delete_stack();
+}
 
+void ast_free_helper(node *ast) {
+
+	if (ast == NULL) {
+		return;
+	}
+
+	switch (ast->kind) {
+		case SCOPE_NODE: {
+			ast_free_helper(ast->scope.decls);
+			ast_free_helper(ast->scope.stats);
+			break;
+		}
+		case UNARY_EXPRESSION_NODE: {
+			ast_free_helper(ast->unary_expr.right);
+			break;
+		}
+		case BINARY_EXPRESSION_NODE: {
+			ast_free_helper(ast->binary_expr.left);
+			ast_free_helper(ast->binary_expr.right);
+			break;
+		}
+
+		case FUNCTION_NODE: {
+			ast_free_helper(ast->function.args);
+			break;
+		}
+		case CONSTRUCTOR_NODE: {
+			ast_free_helper(ast->constructor.args);
+			break;
+		}
+		case STATEMENTS_NODE: {
+			ast_free_helper(ast->statements.stats);
+			ast_free_helper(ast->statements.stat);
+			break;
+		}
+		case IF_STATEMENT_NODE: {
+			ast_free_helper(ast->if_else.exprs);
+			ast_free_helper(ast->if_else.stats);
+			ast_free_helper(ast->if_else.else_stats);
+			break;
+		}
+		case ASSIGNMENT_NODE: {
+			ast_free_helper(ast->assignment.var);
+			ast_free_helper(ast->assignment.expr);
+			break;
+		}
+		case ARGUMENT_NODE: {
+			ast_free_helper(ast->arguments.args);
+			ast_free_helper(ast->arguments.exprs);
+			break;
+		}
+		case DECLARATIONS_NODE: {
+			ast_free_helper(ast->declarations.decls);
+			ast_free_helper(ast->declarations.decl);
+			break;
+		}
+		case DECLARATION_NODE: {
+			ast_free_helper(ast->declaration.expr);
+			break;
+		}
+		case VAR_NODE:
+		case INT_NODE:
+		case FLOAT_NODE:
+		case BOOL_NODE:
+			break;
+		default: {
+			printf("DEFAULT\n");
+		}
+	}
+	free(ast);
 }
 
 void ast_print(node * ast) {
@@ -124,15 +189,13 @@ void ast_print(node * ast) {
 		break;
 	}
 	case UNARY_EXPRESSION_NODE: {
-		printf("(UNARY %s %s ", get_type(ast->type),
-				get_op(ast->unary_expr.op));
+		printf("(UNARY %s %s ", get_type(ast->type), get_op(ast->unary_expr.op));
 		ast_print(ast->unary_expr.right);
 		printf(") \n");
 		break;
 	}
 	case BINARY_EXPRESSION_NODE: {
-		printf("(BINARY %s %s ", get_type(ast->type),
-				get_op(ast->binary_expr.op));
+		printf("(BINARY %s %s ", get_type(ast->type), get_op(ast->binary_expr.op));
 		ast_print(ast->binary_expr.left);
 		ast_print(ast->binary_expr.right);
 		printf(") \n");
@@ -140,8 +203,7 @@ void ast_print(node * ast) {
 	}
 	case VAR_NODE: {
 		if (ast->variable.array_index != -1) {
-			printf("(INDEX %s %s %d)\n", get_type(ast->type), ast->variable.id,
-					ast->variable.array_index);
+			printf("(INDEX %s %s %d)\n", get_type(ast->type), ast->variable.id, ast->variable.array_index);
 		} else {
 			printf("%s ", ast->variable.id);
 		}

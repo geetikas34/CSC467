@@ -97,15 +97,15 @@ void decl_genCode(node* ast){
 				fprintf(frag, "MOV %s, ", ast->declaration.id);
 				genCode(ast->declaration.expr);
 			} else if(ast->declaration.expr->kind ==FUNCTION_NODE){
-				genCode(ast->declaration.expr);
+				genCode(ast->declaration.expr, tempvar);
 			}else{
 				int dest = get_tempVar();
 				genCode(ast->declaration.expr, tempvar);
 				fprintf(frag, "MOV tempVar%d, %s;\n", dest, tempvar);
-				free(tempvar);
 			}
 		}
 	}
+	free(tempvar);
 }
 
 char* get_var(node* ast, char* buf){

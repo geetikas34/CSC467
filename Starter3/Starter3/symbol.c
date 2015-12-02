@@ -20,95 +20,82 @@ void add_global_variables_to_table(symbol_table* table) {
 	entry[0]->identifier = strdup("gl_FragColor");
 	entry[0]->type = VEC4;
 	entry[0]->is_constant = 0;
-	entry[0]->t_class = RESULT;
 
 	add_symbol_table_entry(entry[0], table);
 	entry[1]->identifier = strdup("gl_FragDepth");
 	entry[1]->type = BOOL;
 	entry[1]->is_constant = 0;
-	entry[0]->t_class = RESULT;
 
 	add_symbol_table_entry(entry[1], table);
 
 	entry[2]->identifier = strdup("gl_FragCoord");
 	entry[2]->type = VEC4;
 	entry[2]->is_constant = 0;
-	entry[0]->t_class = RESULT;
 
 	add_symbol_table_entry(entry[2], table);
 
 	entry[3]->identifier = strdup("gl_TexCoord");
 	entry[3]->type = VEC4;
 	entry[3]->is_constant = 0;
-	entry[0]->t_class = ATTRIBUTE;
 
 	add_symbol_table_entry(entry[3], table);
 
 	entry[4]->identifier = strdup("gl_Color");
 	entry[4]->type = VEC4;
 	entry[4]->is_constant = 0;
-	entry[0]->t_class = ATTRIBUTE;
 
 	add_symbol_table_entry(entry[4], table);
 
 	entry[5]->identifier = strdup("gl_Secondary");
 	entry[5]->type = VEC4;
 	entry[5]->is_constant = 0;
-	entry[0]->t_class = ATTRIBUTE;
 
 	add_symbol_table_entry(entry[5], table);
 
 	entry[6]->identifier = strdup("gl_FogFragCoord");
 	entry[6]->type = VEC4;
 	entry[6]->is_constant = 0;
-	entry[0]->t_class = ATTRIBUTE;
 
 	add_symbol_table_entry(entry[6], table);
 
 	entry[7]->identifier = strdup("gl_Light_Half");
 	entry[7]->type = VEC4;
 	entry[7]->is_constant = 1;
-	entry[0]->t_class = UNIFORM;
 
 	add_symbol_table_entry(entry[7], table);
 
 	entry[8]->identifier = strdup("gl_Light_Ambient");
 	entry[8]->type = VEC4;
 	entry[8]->is_constant = 1;
-	entry[0]->t_class = UNIFORM;
 
 	add_symbol_table_entry(entry[8], table);
 
 	entry[9]->identifier = strdup("gl_Material_Shininess");
 	entry[9]->type = VEC4;
 	entry[9]->is_constant = 1;
-	entry[0]->t_class = UNIFORM;
 
 	add_symbol_table_entry(entry[9], table);
 
 	entry[10]->identifier = strdup("env1");
 	entry[10]->type = VEC4;
 	entry[10]->is_constant = 1;
-	entry[0]->t_class = UNIFORM;
 
 	add_symbol_table_entry(entry[10], table);
 
 	entry[11]->identifier = strdup("env2");
 	entry[11]->type = VEC4;
 	entry[11]->is_constant = 1;
-	entry[0]->t_class = UNIFORM;
 
 	add_symbol_table_entry(entry[11], table);
 
 	entry[12]->identifier = strdup("env3");
 	entry[12]->type = VEC4;
 	entry[12]->is_constant = 1;
-	entry[0]->t_class = UNIFORM;
 
 	add_symbol_table_entry(entry[12], table);
 }
 
-/*void delete_table(symbol_table* table) {
+void delete_table(symbol_table* table) {
 
 	while(table->head) {
 		symbol_table_entry* entry = table->head;
@@ -116,7 +103,8 @@ void add_global_variables_to_table(symbol_table* table) {
 		free(entry);
 	}
 	free(table);
-}*/
+	table = NULL;
+}
 
 void print_table(symbol_table* table) {
 

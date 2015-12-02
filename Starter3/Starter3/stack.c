@@ -17,7 +17,6 @@ symbol_table* symbol_table_stack_pop() {
 	symbol_table* top = stack->head;
 	stack->head = stack->head->next;
 	return top;
-//	delete_table(top);
 }
 
 
@@ -31,4 +30,13 @@ void print_stack() {
 		ptr = ptr->next;
 		i++;
 	}
+}
+
+void delete_stack() {
+	symbol_table* t = stack->head;
+	while(t) {
+		delete_table(t);
+		t = t->next;
+	}
+	free(stack);
 }

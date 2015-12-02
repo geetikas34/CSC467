@@ -1,5 +1,8 @@
 /***********************************************************************
- * **YOUR GROUP INFO SHOULD GO HERE**
+ * Group 01:
+ * Nayantara Prem 998698351
+ * Geetika Saksena 998672191
+ *
  *
  * compiler467.c
  *
@@ -88,7 +91,6 @@ int main (int argc, char *argv[]) {
   if (dumpAST)
     ast_print(ast);
 /* Phase 4: Add code to call the code generation routine */
-/* TODO: call your code generation routine here */
   if (errorOccurred)
     fprintf(outputFile,"Failed to compile\n");
   else 
@@ -99,7 +101,7 @@ int main (int argc, char *argv[]) {
  **********************************************************************/
 
 /* Make calls to any cleanup or finalization routines here. */
-  ast_free(ast);
+  ast_free_helper(ast);
 
   /* Clean up files if necessary */
   if (inputFile != DEFAULT_INPUT_FILE)

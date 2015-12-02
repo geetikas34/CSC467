@@ -80,6 +80,7 @@ struct node_ {
 	node_kind kind;
 	type_t type;
 	symbol_table *current_table;
+	int line_num;
 
 	union {
 
@@ -162,6 +163,7 @@ struct node_ {
 
 node *ast_allocate(node_kind type, ...);
 void ast_free(node *ast);
+void ast_free_helper(node *ast);
 void ast_print(node * ast);
 
 char* get_op(int op);
